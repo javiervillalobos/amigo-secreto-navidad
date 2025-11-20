@@ -17,9 +17,8 @@ app.use(express.json());
 
 // Servir estáticos (Frontend)
 app.use(express.static(path.join(__dirname, '../public')));
-app.use('/registrar', controller.registrar);
-app.use('/regalo', controller.guardarRegalo);
 app.use('/sorteo', controller.realizarSorteo);  
+app.use('/unirse', controller.unirse);  
 
 if (process.env.NODE_ENV !== 'production' && process.argv[1] === fileURLToPath(import.meta.url)) {
     const PORT = process.env.PORT || 3000;

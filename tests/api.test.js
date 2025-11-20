@@ -13,82 +13,47 @@ describe('API Endpoints Integration', () => {
         await closeDatabase();
     });
 
-    test('POST /registrar debe crear un usuario y devolver 201', async () => {
-        const nuevoUsuario = { nombre: 'Usuario API', email: 'api@test.com' };
 
-        // Usamos supertest para simular el POST
+    test('POST /unirse debe registrar usuario y regalo en una sola llamada', async () => {
+        const payload = {
+            nombre: 'Usuario Unificado',
+            email: 'unificado@test.com',
+            nombre_regalo: 'Libro de Cocina',
+            precio: 25000,
+            url_regalo: 'http://libro.com'
+        };
+
         const response = await request(app)
-            .post('/registrar')
-            .send(nuevoUsuario);
+            .post('/unirse') // Nueva ruta
+            .send(payload);
 
-        // Validaciones HTTP
         expect(response.statusCode).toBe(201);
-        expect(response.headers['content-type']).toMatch(/json/);
-        // Validaciones de Datos
-        expect(response.body).toHaveProperty('id');
-        expect(response.body.email).toBe('api@test.com');
-    });
-
-    test('POST /regalo debe guardar un regalo y devolver 201', async () => {
-        const nuevoUsuario = { nombre: 'Usuario API', email: 'api@test.com' };
-        const nuevoRegalo = { 
-            email: 'api@test.com', 
-            nombre_regalo: 'Nintendo Switch', 
-            url_regalo: 'http://foto.com',
-            precio: 45000 
-        }        
-
-        // Usamos supertest para simular el POST
-        const responseUsuario = await request(app)
-            .post('/registrar')
-            .send(nuevoUsuario);
-
-        const responseRegalo = await request(app)
-            .post('/regalo')
-            .send(nuevoRegalo);
-
-
-        expect(responseUsuario.statusCode).toBe(201);
-        expect(responseUsuario.headers['content-type']).toMatch(/json/);
-        expect(responseUsuario.body).toHaveProperty('id');
-        expect(responseUsuario.body.email).toBe('api@test.com');
-
-        expect(responseRegalo.statusCode).toBe(201);
-        expect(responseRegalo.headers['content-type']).toMatch(/json/);
-        expect(responseRegalo.body).toHaveProperty('id');
-        expect(responseRegalo.body.nombre_regalo).toBe('Nintendo Switch');
-        expect(responseRegalo.body.miembro_id).toBe(responseUsuario.body.id);
-
-    });
+        expect(response.body).toHaveProperty('usuario');
+        expect(response.body).toHaveProperty('regalo');
+        expect(response.body.usuario.email).toBe('unificado@test.com');
+        expect(response.body.regalo.nombre_regalo).toBe('Libro de Cocina');
+    });    
 
     test('POST /api/sorteo debe realizar sorteo, enviar correos y devolver 201', async () => {
 
         for (let i = 1; i <= 3; i++) {
-            const usuario = { nombre: 'Usuario API ' + i, email: 'api' + i + '@test.com' };
-            const regalo = { 
-                email: 'api' + i + '@test.com', 
-                nombre_regalo: 'Nintendo Switch ' + i, 
-                url_regalo: 'http://foto.com',
-                precio: 45000 
-            }        
-            const responseUsuario = await request(app)
-            .post('/registrar')
-            .send(usuario);
+            const payload = {
+                nombre: 'Usuario Unificado ' + i,
+                email: 'unificado' + i + '@test.com',
+                nombre_regalo: 'Libro de Cocina ' + i,
+                precio: 25000,
+                url_regalo: 'http://libro.com'
+            };
+        
+            const response = await request(app)
+            .post('/unirse') // Nueva ruta
+            .send(payload);
 
-            const responseRegalo = await request(app)
-                .post('/regalo')
-                .send(regalo);
-
-            expect(responseUsuario.statusCode).toBe(201);
-            expect(responseUsuario.headers['content-type']).toMatch(/json/);
-            expect(responseUsuario.body).toHaveProperty('id');
-            expect(responseUsuario.body.email).toBe('api' + i + '@test.com');
-
-            expect(responseRegalo.statusCode).toBe(201);
-            expect(responseRegalo.headers['content-type']).toMatch(/json/);
-            expect(responseRegalo.body).toHaveProperty('id');
-            expect(responseRegalo.body.nombre_regalo).toBe('Nintendo Switch ' + i);
-            expect(responseRegalo.body.miembro_id).toBe(responseUsuario.body.id);
+            expect(response.statusCode).toBe(201);
+            expect(response.body).toHaveProperty('usuario');
+            expect(response.body).toHaveProperty('regalo');
+            expect(response.body.usuario.email).toBe('unificado' + i + '@test.com');
+            expect(response.body.regalo.nombre_regalo).toBe('Libro de Cocina ' + i);
         }
 
         const responseSorteo = await request(app)

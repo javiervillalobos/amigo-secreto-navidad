@@ -142,4 +142,22 @@ export class SorteoService {
             html: htmlBody
         });
     }
+
+    async inscribirParticipante({ nombre, email, nombre_regalo, url_regalo, precio }) {
+        // 1. Registrar Usuario
+        // Si el usuario ya existe, registrarMiembro lanza error. 
+        // Para MVP está bien, pero idealmente podríamos verificar si existe antes.
+        const usuario = await this.registrarMiembro({ nombre, email });
+
+        // 2. Guardar Regalo
+        // Usamos el email que acabamos de registrar
+        const regalo = await this.guardarRegalo({ 
+            email, 
+            nombre_regalo, 
+            url_regalo, 
+            precio 
+        });
+
+        return { usuario, regalo };
+    }    
 }

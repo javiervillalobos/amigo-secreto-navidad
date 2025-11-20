@@ -21,73 +21,45 @@ document.addEventListener('DOMContentLoaded', () => {
         toast.show();
     };
 
-    // --- API CALLS ---
+    const formUnirse = document.getElementById('form-unirse');
     
-    // 1. Registro
-    document.getElementById('form-registro').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = e.target.querySelector('button');
-        btn.disabled = true;
+    if (formUnirse) {
+        formUnirse.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.disabled = true;
+            btn.textContent = 'Enviando a Polo Norte...';
 
-        const payload = {
-            nombre: document.getElementById('nombre').value,
-            email: document.getElementById('email-registro').value
-        };
+            const payload = {
+                nombre: document.getElementById('nombre').value,
+                email: document.getElementById('email').value,
+                nombre_regalo: document.getElementById('nombre-regalo').value,
+                precio: document.getElementById('precio').value,
+                url_regalo: document.getElementById('url-regalo').value
+            };
 
-        try {
-            const res = await fetch('/registrar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
+            try {
+                const res = await fetch('/unirse', { // Nueva ruta
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
 
-            if (!res.ok) throw new Error(data.error);
+                if (!res.ok) throw new Error(data.error);
 
-            mostrarToast('¡Éxito!', `Bienvenido/a ${data.nombre}. Ahora pide tu regalo.`);
-            // Pre-llenar el email en el siguiente formulario para mejor UX
-            document.getElementById('email-regalo').value = data.email;
-            e.target.reset();
+                mostrarToast('¡Inscrito!', `Bienvenido/a ${data.usuario.nombre}. Tu deseo fue guardado.`);
+                e.target.reset();
+                btn.textContent = '¡Listo! Inscribir a otro';
 
-        } catch (err) {
-            mostrarToast('Error', err.message, true);
-        } finally {
-            btn.disabled = false;
-        }
-    });
-
-    // 2. Regalo
-    document.getElementById('form-regalo').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = e.target.querySelector('button');
-        btn.disabled = true;
-
-        const payload = {
-            email: document.getElementById('email-regalo').value,
-            nombre_regalo: document.getElementById('nombre-regalo').value,
-            precio: document.getElementById('precio').value,
-            url_regalo: document.getElementById('url-regalo').value
-        };
-
-        try {
-            const res = await fetch('/regalo', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-
-            if (!res.ok) throw new Error(data.error);
-
-            mostrarToast('¡Regalo Guardado!', 'Tu deseo ha sido registrado 🎁');
-            e.target.reset();
-
-        } catch (err) {
-            mostrarToast('Error', err.message, true);
-        } finally {
-            btn.disabled = false;
-        }
-    });
+            } catch (err) {
+                mostrarToast('Error', err.message, true);
+                btn.textContent = '🎄 ¡Confirmar Participación! 🎄';
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    }    
 
     // 3. Sorteo
     document.getElementById('btn-sorteo').addEventListener('click', async (e) => {
