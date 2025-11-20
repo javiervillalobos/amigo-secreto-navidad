@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const res = await fetch('/api/registrar', {
+            const res = await fetch('/registrar', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const res = await fetch('/api/regalo', {
+            const res = await fetch('/regalo', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.textContent = 'Procesando...';
 
         try {
-            const res = await fetch('/api/sorteo', { method: 'POST' });
+            const res = await fetch('/sorteo', { method: 'POST' });
             const data = await res.json();
 
             if (!res.ok) throw new Error(data.error);

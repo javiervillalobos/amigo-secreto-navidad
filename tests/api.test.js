@@ -13,12 +13,12 @@ describe('API Endpoints Integration', () => {
         await closeDatabase();
     });
 
-    test('POST /api/registrar debe crear un usuario y devolver 201', async () => {
+    test('POST /registrar debe crear un usuario y devolver 201', async () => {
         const nuevoUsuario = { nombre: 'Usuario API', email: 'api@test.com' };
 
         // Usamos supertest para simular el POST
         const response = await request(app)
-            .post('/api/registrar')
+            .post('/registrar')
             .send(nuevoUsuario);
 
         // Validaciones HTTP
@@ -29,7 +29,7 @@ describe('API Endpoints Integration', () => {
         expect(response.body.email).toBe('api@test.com');
     });
 
-    test('POST /api/regalo debe guardar un regalo y devolver 201', async () => {
+    test('POST /regalo debe guardar un regalo y devolver 201', async () => {
         const nuevoUsuario = { nombre: 'Usuario API', email: 'api@test.com' };
         const nuevoRegalo = { 
             email: 'api@test.com', 
@@ -40,11 +40,11 @@ describe('API Endpoints Integration', () => {
 
         // Usamos supertest para simular el POST
         const responseUsuario = await request(app)
-            .post('/api/registrar')
+            .post('/registrar')
             .send(nuevoUsuario);
 
         const responseRegalo = await request(app)
-            .post('/api/regalo')
+            .post('/regalo')
             .send(nuevoRegalo);
 
 
@@ -72,11 +72,11 @@ describe('API Endpoints Integration', () => {
                 precio: 45000 
             }        
             const responseUsuario = await request(app)
-            .post('/api/registrar')
+            .post('/registrar')
             .send(usuario);
 
             const responseRegalo = await request(app)
-                .post('/api/regalo')
+                .post('/regalo')
                 .send(regalo);
 
             expect(responseUsuario.statusCode).toBe(201);
@@ -92,7 +92,7 @@ describe('API Endpoints Integration', () => {
         }
 
         const responseSorteo = await request(app)
-            .post('/api/sorteo');
+            .post('/sorteo');
 
         expect(responseSorteo.statusCode).toBe(200);
         expect(responseSorteo.headers['content-type']).toMatch(/json/);
