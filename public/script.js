@@ -61,27 +61,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }    
 
-    // 3. Sorteo
-    document.getElementById('btn-sorteo').addEventListener('click', async (e) => {
-        if (!confirm('¿Seguro? Esto enviará los correos a todos.')) return;
+    const btnSorteo = document.getElementById('btn-sorteo');
 
-        const btn = e.target;
-        btn.disabled = true;
-        btn.textContent = 'Procesando...';
+    if (btnSorteo) {
+        document.getElementById('btn-sorteo').addEventListener('click', async (e) => {
+            if (!confirm('¿Seguro? Esto enviará los correos a todos.')) return;
 
-        try {
-            const res = await fetch('/sorteo', { method: 'POST' });
-            const data = await res.json();
+            const btn = e.target;
+            btn.disabled = true;
+            btn.textContent = 'Procesando...';
 
-            if (!res.ok) throw new Error(data.error);
+            try {
+                const res = await fetch('/sorteo', { method: 'POST' });
+                const data = await res.json();
 
-            mostrarToast('¡Sorteo Listo!', data.mensaje);
-            btn.textContent = '¡Sorteo Finalizado!';
-            
-        } catch (err) {
-            mostrarToast('Error', err.message, true);
-            btn.disabled = false;
-            btn.textContent = '🎲 REALIZAR SORTEO Y ENVIAR CORREOS';
-        }
-    });
+                if (!res.ok) throw new Error(data.error);
+
+                mostrarToast('¡Sorteo Listo!', data.mensaje);
+                btn.textContent = '¡Sorteo Finalizado!';
+                
+            } catch (err) {
+                mostrarToast('Error', err.message, true);
+                btn.disabled = false;
+                btn.textContent = '🎲 REALIZAR SORTEO Y ENVIAR CORREOS';
+            }
+        });
+    }
 });
