@@ -1,7 +1,7 @@
 import { expect, jest } from '@jest/globals';
-import pool from '../api/config/db.js';
+import pool from '../src/config/db.js';
 import { resetDatabase, closeDatabase } from './test_helper.js';
-import { SorteoService } from '../api/services/SorteoService.js';
+import { SorteoService } from '../src/services/SorteoService.js';
 
 describe('SorteoService', () => {
     let service;
