@@ -21,3 +21,42 @@ h1, h4 {
 #btn-sorteo {
     box-shadow: 0 4px 15px rgba(220, 53, 69, 0.5);
 }
+
+/* ... tus estilos anteriores ... */
+
+/* AJUSTES PARA MÓVILES (Pantallas menores a 768px) */
+@media (max-width: 768px) {
+    
+    /* Reducir el tamaño del título principal para que no ocupe toda la pantalla */
+    h1.display-4 {
+        font-size: 2.5rem; 
+    }
+
+    /* Ajustar el contenedor para ganar espacio en los bordes */
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    /* La tarjeta de registro debe sentirse nativa, con menos sombra y borde en móvil */
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+        background-color: transparent !important;
+    }
+    
+    /* El cuerpo de la tarjeta con fondo blanco para leer bien */
+    .card-body {
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        padding: 1.5rem !important;
+    }
+
+    /* Botones más altos para dedos gruesos */
+    .btn-lg {
+        padding-top: 15px;
+        padding-bottom: 15px;
+        font-size: 1.2rem;
+    }
+}
