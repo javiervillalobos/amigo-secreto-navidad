@@ -17,17 +17,9 @@ app.use(express.json());
 
 // Servir estáticos (Frontend)
 app.use(express.static(path.join(__dirname, '../public')));
-
-// DEFINICIÓN DE RUTAS MÁS SEGURA:
-// Creamos un Router específico para la API
-const apiRouter = express.Router();
-
-apiRouter.post('/registrar', controller.registrar);
-apiRouter.post('/regalo', controller.guardarRegalo);
-apiRouter.post('/sorteo', controller.realizarSorteo);
-
-// Le decimos a Express que use ese router para todo lo que empiece por /api
-app.use('/api', apiRouter);
+app.use('/api/registrar', controller.registrar);
+app.use('/api/regalo', controller.guardarRegalo);
+app.use('/api/sorteo', controller.realizarSorteo);  
 
 if (process.env.NODE_ENV !== 'production' && process.argv[1] === fileURLToPath(import.meta.url)) {
     const PORT = process.env.PORT || 3000;
