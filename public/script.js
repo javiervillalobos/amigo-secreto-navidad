@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const payload = {
                 nombre: document.getElementById('nombre').value,
                 email: document.getElementById('email').value,
+                telefono: document.getElementById('telefono').value,
                 nombre_regalo: document.getElementById('nombre-regalo').value,
                 precio: document.getElementById('precio').value,
                 url_regalo: document.getElementById('url-regalo').value

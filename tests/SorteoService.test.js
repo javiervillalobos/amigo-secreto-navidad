@@ -5,6 +5,8 @@ import { SorteoService } from '../src/services/SorteoService.js';
 
 describe('SorteoService', () => {
     let service;
+    let mockEmailClient;
+    let mockWhatsAppService;
 
     afterAll(async () => {
         await closeDatabase();
@@ -12,8 +14,9 @@ describe('SorteoService', () => {
 
     beforeEach(async () => {
         await resetDatabase();
-        const mockEmailClient = { sendMail: jest.fn() };
-        service = new SorteoService(pool, mockEmailClient);
+        mockEmailClient = { sendMail: jest.fn() };
+        mockWhatsAppService = { enviarMensaje: jest.fn() };
+        service = new SorteoService(pool, mockEmailClient, mockWhatsAppService);
     });
 
     test('Debe fallar si no se proporciona un nombre', async () => {
@@ -209,4 +212,27 @@ describe('SorteoService', () => {
         }
     
     });
+
+    test('Debe intentar enviar WhatsApp si el usuario tiene teléfono', async () => {
+        // 1. Crear usuarios, uno con teléfono y otro sin
+        const u1 = await service.registrarMiembro({ nombre: 'Ana', email: 'ana@test.com', telefono: '+56911111111' });
+        const u2 = await service.registrarMiembro({ nombre: 'Beto', email: 'beto@test.com' }); // Sin teléfono
+
+        await service.guardarRegalo({ email: 'ana@test.com', nombre_regalo: 'R1', precio: 25000 });
+        await service.guardarRegalo({ email: 'beto@test.com', nombre_regalo: 'R2', precio: 25000 });
+
+        // 2. Realizar Sorteo
+        await service.realizarSorteo();
+
+        // 3. Validaciones
+        // El email siempre se envía
+        expect(mockEmailClient.sendMail).toHaveBeenCalledTimes(2);
+        
+        // El WhatsApp solo se envía a Ana (que tiene teléfono)
+        expect(mockWhatsAppService.enviarMensaje).toHaveBeenCalledTimes(1);
+        expect(mockWhatsAppService.enviarMensaje).toHaveBeenCalledWith(
+            '+56911111111', 
+            expect.stringContaining('tu Amigo Secreto es') // El mensaje debe tener el texto clave
+        );
+    });    
 });

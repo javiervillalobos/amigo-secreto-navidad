@@ -4,12 +4,14 @@ import path from 'path'; // <--- Importar path
 import { fileURLToPath } from 'url'; // <--- Necesario para __dirname en ES Modules
 import emailClient from './config/email.js'; // Asegúrate de tener este archivo o un mock
 import { SorteoService } from './services/SorteoService.js';
+import { WhatsAppService } from './services/WhatsAppService.js';
 import { SorteoController } from './controllers/SorteoController.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // 1. Instancias e Inyección
-const service = new SorteoService(pool, emailClient);
+const whatsAppService = new WhatsAppService();
+const service = new SorteoService(pool, emailClient, whatsAppService);
 const controller = new SorteoController(service);
 
 const app = express();

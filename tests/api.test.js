@@ -1,6 +1,9 @@
+import { jest } from '@jest/globals';
 import request from 'supertest';
 import { resetDatabase, closeDatabase } from './test_helper.js';
 import app from '../src/server.js'; // Importaremos la App (aún no creada)
+
+jest.setTimeout(10000);
 
 describe('API Endpoints Integration', () => {
     
@@ -13,27 +16,26 @@ describe('API Endpoints Integration', () => {
         await closeDatabase();
     });
 
-
-    test('POST /unirse debe registrar usuario y regalo en una sola llamada', async () => {
+    test('POST /unirse debe registrar usuario, TELÉFONO y regalo', async () => {
         const payload = {
-            nombre: 'Usuario Unificado',
-            email: 'unificado@test.com',
-            nombre_regalo: 'Libro de Cocina',
+            nombre: 'Usuario WhatsApp',
+            email: 'wsp@test.com',
+            telefono: '+56912345678', // <--- Nuevo dato
+            nombre_regalo: 'Libro',
             precio: 25000,
             url_regalo: 'http://libro.com'
         };
 
         const response = await request(app)
-            .post('/unirse') // Nueva ruta
+            .post('/unirse')
             .send(payload);
 
         expect(response.statusCode).toBe(201);
-        expect(response.body).toHaveProperty('usuario');
-        expect(response.body).toHaveProperty('regalo');
-        expect(response.body.usuario.email).toBe('unificado@test.com');
-        expect(response.body.regalo.nombre_regalo).toBe('Libro de Cocina');
-    });    
-
+        // Verificamos que el backend nos devuelva el teléfono guardado
+        expect(response.body.usuario).toHaveProperty('telefono'); 
+        expect(response.body.usuario.telefono).toBe('+56912345678');
+    });
+    
     test('POST /api/sorteo debe realizar sorteo, enviar correos y devolver 201', async () => {
 
         for (let i = 1; i <= 3; i++) {

@@ -1,12 +1,13 @@
 export class SorteoService {
-    constructor(dbPool, emailClient) {
+    constructor(dbPool, emailClient, whatsAppService) {
         this.db = dbPool;
         this.email = emailClient;
+        this.whatsapp = whatsAppService;
         this.P1 = 20000;
         this.P2 = 50000;
     }
 
-    async registrarMiembro({ nombre, email }) {
+    async registrarMiembro({ nombre, email, telefono }) {
         if (!nombre) {
             throw new Error('El nombre es requerido');
         }
@@ -17,8 +18,8 @@ export class SorteoService {
         
         try {
             const result = await this.db.query(
-                'INSERT INTO Familia (nombre, email) VALUES ($1, $2) RETURNING *',
-                [nombre, email]
+                'INSERT INTO Familia (nombre, email, telefono) VALUES ($1, $2, $3) RETURNING *',
+                [nombre, email, telefono]
             );
             return result.rows[0];
         } catch (error) {
@@ -63,8 +64,8 @@ export class SorteoService {
     }    
 
     async realizarSorteo() {
-        const query = `
-            SELECT f.id as miembro_id, f.nombre as miembro_nombre, f.email as miembro_email, 
+       const query = `
+            SELECT f.id as miembro_id, f.nombre as miembro_nombre, f.email as miembro_email, f.telefono as miembro_telefono,
                    r.nombre_regalo, r.url_regalo, r.precio
             FROM Familia f
             JOIN Regalos r ON f.id = r.miembro_id
@@ -98,11 +99,20 @@ export class SorteoService {
             }
         }
 
-        const promesasEmail = asignaciones.map(match => {
-            return this._enviarEmail(match.comprador, match.receptor);
+        const promesasNotificaciones = asignaciones.map(async (match) => {
+            // Enviamos Email siempre
+            const emailPromesa = this._enviarEmail(match.comprador, match.receptor);
+            
+            // Enviamos WhatsApp solo si tiene número
+            let whatsappPromesa = Promise.resolve();
+            if (match.comprador.miembro_telefono) {
+                whatsappPromesa = this._enviarWhatsApp(match.comprador, match.receptor);
+            }
+
+            return Promise.all([emailPromesa, whatsappPromesa]);
         });
 
-        await Promise.all(promesasEmail);
+        await Promise.all(promesasNotificaciones);
 
         const detalles = [];
         for (const match of asignaciones) {
@@ -114,7 +124,7 @@ export class SorteoService {
         }   
         
         return { 
-            mensaje: `Sorteo realizado. Se enviaron ${asignaciones.length} correos.`,
+            mensaje: `Sorteo realizado. Se notificó a ${asignaciones.length} personas.`,
             detalle: detalles
         };
     }
@@ -143,11 +153,18 @@ export class SorteoService {
         });
     }
 
-    async inscribirParticipante({ nombre, email, nombre_regalo, url_regalo, precio }) {
-        // 1. Registrar Usuario
-        // Si el usuario ya existe, registrarMiembro lanza error. 
-        // Para MVP está bien, pero idealmente podríamos verificar si existe antes.
-        const usuario = await this.registrarMiembro({ nombre, email });
+    async _enviarWhatsApp(comprador, receptor) {
+        if (!this.whatsapp) return; // Seguridad si no se inyectó el servicio
+
+        const mensaje = `🎄 Hola ${comprador.miembro_nombre}, tu Amigo Secreto es *${receptor.miembro_nombre}*. ` +
+                        `Regalo: ${receptor.nombre_regalo}. Link: ${receptor.url_regalo || 'N/A'}`;
+
+        await this.whatsapp.enviarMensaje(comprador.miembro_telefono, mensaje);
+    }
+
+    async inscribirParticipante({ nombre, email, telefono, nombre_regalo, url_regalo, precio }) {
+        // Pasamos el teléfono al método de registro
+        const usuario = await this.registrarMiembro({ nombre, email, telefono });
 
         // 2. Guardar Regalo
         // Usamos el email que acabamos de registrar
