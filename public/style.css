@@ -1,0 +1,23 @@
+/* Fondo cálido, nada de nieve */
+body {
+    background-color: #fff8e1; /* Un crema suave/amarillo pálido */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Títulos con fuente más festiva si se carga, sino sans-serif */
+h1, h4 {
+    font-family: 'Trebuchet MS', sans-serif;
+}
+
+/* Botones con transición suave */
+.btn {
+    transition: transform 0.2s;
+}
+.btn:hover {
+    transform: scale(1.02);
+}
+
+/* Sombra roja festiva para el botón de sorteo */
+#btn-sorteo {
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.5);
+}

@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { expect, jest } from '@jest/globals';
 import pool from '../src/config/db.js';
 import { resetDatabase, closeDatabase } from './test_helper.js';
 import { SorteoService } from '../src/services/SorteoService.js';
@@ -133,4 +133,80 @@ describe('SorteoService', () => {
         expect(service.email.sendMail).toHaveBeenCalledTimes(3);
     });
 
+
+    test('Debe realizar el sorteo correctamente y recibir detalle de las asignaciones', async () => {
+        const correos = ['a@fam.cl', 'b@fam.cl', 'c@fam.cl'];
+        const regalos = ['Regalo a@fam.cl', 'Regalo b@fam.cl', 'Regalo c@fam.cl'];
+        
+        for (const email of correos) {
+            await service.registrarMiembro({ nombre: 'User ' + email, email });
+            await service.guardarRegalo({ email, nombre_regalo: 'Regalo ' + email, precio: 30000 });
+        }
+
+        const resultado = await service.realizarSorteo();
+
+        expect(resultado).toHaveProperty('mensaje');
+        expect(resultado).toHaveProperty('detalle');
+        expect(resultado.mensaje).toContain('Sorteo realizado');        
+        expect(service.email.sendMail).toHaveBeenCalledTimes(3);
+        expect(resultado.detalle).toHaveLength(3);
+
+        const regalosAsignados = new Map();
+
+        for (const detalle of resultado.detalle) {
+            const regaloPropio = detalle.regaloPropio;
+            const regaloAsignado = detalle.regaloAsignado
+
+            expect(regaloAsignado).not.toBe(regaloPropio);
+
+            let contador = regalosAsignados.get(regaloAsignado) || 0;
+            contador++;
+            regalosAsignados.set(regaloAsignado, contador);
+        }
+
+        expect(regalosAsignados.size).toBe(3);
+
+        for (const [regalo, contador] of regalosAsignados) {
+            expect(contador).toBe(1);
+        }
+    
+    });
+
+    test('Debe realizar el sorteo correctamente para 5 personas y recibir detalle de las asignaciones', async () => {
+        const correos = ['a@fam.cl', 'b@fam.cl', 'c@fam.cl', 'd@fam.cl', 'e@fam.cl'];
+        const regalos = ['Regalo a@fam.cl', 'Regalo b@fam.cl', 'Regalo c@fam.cl', 'Regalo d@fam.cl', 'Regalo e@fam.cl'];
+        
+        for (const email of correos) {
+            await service.registrarMiembro({ nombre: 'User ' + email, email });
+            await service.guardarRegalo({ email, nombre_regalo: 'Regalo ' + email, precio: 30000 });
+        }
+
+        const resultado = await service.realizarSorteo();
+
+        expect(resultado).toHaveProperty('mensaje');
+        expect(resultado).toHaveProperty('detalle');
+        expect(resultado.mensaje).toContain('Sorteo realizado');        
+        expect(service.email.sendMail).toHaveBeenCalledTimes(5);
+        expect(resultado.detalle).toHaveLength(5);
+
+        const regalosAsignados = new Map();
+
+        for (const detalle of resultado.detalle) {
+            const regaloPropio = detalle.regaloPropio;
+            const regaloAsignado = detalle.regaloAsignado
+
+            expect(regaloAsignado).not.toBe(regaloPropio);
+
+            let contador = regalosAsignados.get(regaloAsignado) || 0;
+            contador++;
+            regalosAsignados.set(regaloAsignado, contador);
+        }
+
+        expect(regalosAsignados.size).toBe(5);
+
+        for (const [regalo, contador] of regalosAsignados) {
+            expect(contador).toBe(1);
+        }
+    
+    });
 });

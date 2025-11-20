@@ -103,8 +103,20 @@ export class SorteoService {
         });
 
         await Promise.all(promesasEmail);
+
+        const detalles = [];
+        for (const match of asignaciones) {
+            detalles.push({
+                nombrePersona: match.comprador.miembro_nombre,
+                regaloPropio: match.comprador.nombre_regalo,
+                regaloAsignado: match.receptor.nombre_regalo
+            });
+        }   
         
-        return { mensaje: `Sorteo realizado. Se enviaron ${asignaciones.length} correos.` };
+        return { 
+            mensaje: `Sorteo realizado. Se enviaron ${asignaciones.length} correos.`,
+            detalle: detalles
+        };
     }
 
     async _enviarEmail(comprador, receptor) {
