@@ -12,15 +12,21 @@ const __dirname = path.dirname(__filename);
 const service = new SorteoService(pool, emailClient);
 const controller = new SorteoController(service);
 
-// 2. Configurar Express
 const app = express();
 app.use(express.json());
 
+// Servir estáticos (Frontend)
 app.use(express.static(path.join(__dirname, '../public')));
 
-// 3. Definir Rutas
-app.post('/api/registrar', controller.registrar);
-app.post('/api/regalo', controller.guardarRegalo);
-app.post('/api/sorteo', controller.realizarSorteo);
+// DEFINICIÓN DE RUTAS MÁS SEGURA:
+// Creamos un Router específico para la API
+const apiRouter = express.Router();
+
+apiRouter.post('/registrar', controller.registrar);
+apiRouter.post('/regalo', controller.guardarRegalo);
+apiRouter.post('/sorteo', controller.realizarSorteo);
+
+// Le decimos a Express que use ese router para todo lo que empiece por /api
+app.use('/api', apiRouter);
 
 export default app;

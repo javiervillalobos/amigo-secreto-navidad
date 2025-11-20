@@ -1,3 +1,6 @@
 import app from '../src/app.js';
 
-export default app;
+// Vercel necesita que exportemos "default" la instancia de Express
+export default function handler(req, res) {
+    return app(req, res);
+}
