@@ -29,4 +29,11 @@ apiRouter.post('/sorteo', controller.realizarSorteo);
 // Le decimos a Express que use ese router para todo lo que empiece por /api
 app.use('/api', apiRouter);
 
+if (process.env.NODE_ENV !== 'production' && process.argv[1] === fileURLToPath(import.meta.url)) {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`🚀 Servidor local corriendo en http://localhost:${PORT}`);
+    });
+}
+
 export default app;
