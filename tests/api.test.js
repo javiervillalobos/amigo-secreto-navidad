@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { resetDatabase, closeDatabase } from './test_helper.js';
-import app from '../api/server.js'; // Importaremos la App (aún no creada)
+import app from '../src/server.js'; // Importaremos la App (aún no creada)
 
 describe('API Endpoints Integration', () => {
     
